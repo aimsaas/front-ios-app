@@ -18,7 +18,7 @@ class AccountRecovery {
         // 构造私钥对象，派生公钥与 userId
         let priv = try Curve25519.Signing.PrivateKey(rawRepresentation: privData)
         let pubData = priv.publicKey.rawRepresentation
-        let userId = RecoveryKeyManager.sha256Hex(data: pubData)
+        let userId = ShortID.generate(from: pubData)
 
         // 1) 如果本地已有该 userId，则直接返回
         let fetch = FetchDescriptor<UserInfo>(predicate: #Predicate { $0.userId == userId })

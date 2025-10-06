@@ -29,7 +29,7 @@ class RecoveryKeyManager {
 
         let privBase64 = privData.base64EncodedString()
         let pubBase64 = pubData.base64EncodedString()
-        let userId = sha256Hex(data: pubData)
+        let userId = ShortID.generate(from: pubData)
 
         // 保存私钥二进制到 Keychain
         try KeychainHelper.save(data: privData, service: keychainService, account: keychainAccount)
@@ -55,7 +55,7 @@ class RecoveryKeyManager {
         // 验证能否构造私钥
         let priv = try Curve25519.Signing.PrivateKey(rawRepresentation: data)
         let pub = priv.publicKey.rawRepresentation
-        let userId = sha256Hex(data: pub)
+        let userId = ShortID.generate(from: pub)
         try KeychainHelper.save(data: data, service: keychainService, account: keychainAccount)
         return userId
     }
@@ -76,4 +76,25 @@ class RecoveryKeyManager {
     static func deletePrivateKeyFromKeychain() {
         KeychainHelper.delete(service: keychainService, account: keychainAccount)
     }
+    
+    static func deletePrivateKey() {
+        KeychainHelper.delete(service: keychainService, account: keychainAccount)
+        print("✅ 私钥已从 Keychain 删除（service/account 方式）")
+    }
+    
+    /// 删除（销毁）存储在钥匙串中的私钥
+//    static func deletePrivateKey() {
+//        let tag = "com.her.privatekey"
+//        let query: [String: Any] = [
+//            kSecClass as String: kSecClassKey,
+//            kSecAttrApplicationTag as String: tag.data(using: .utf8)!,
+//            kSecAttrKeyType as String: kSecAttrKeyTypeECSECPrimeRandom
+//        ]
+//        let status = SecItemDelete(query as CFDictionary)
+//        if status == errSecSuccess {
+//            print("✅ 私钥已从钥匙串中删除")
+//        } else {
+//            print("⚠️ 删除私钥失败，状态码: \(status)")
+//        }
+//    }
 }
